@@ -1,6 +1,7 @@
 <!--Aluna: Maria Jaqueline dos Santos Silva-->
 {% extends "template.html" %}
 {% block conteudo %}
+
 <form action="/criar" method="post">
     <fieldset>
         <div class="form-group">
@@ -16,6 +17,8 @@
            <input type="text" id="console" name="console" class="form-control">
         </div>
         <button type="submit" class="btn btn-primary btn-salvar">Salvar</button>
+        <a class="btn btn-danger" href="{{url_for('index')}}">Voltar</a>
     </fieldset>
 </form>
+
 {%endblock %}

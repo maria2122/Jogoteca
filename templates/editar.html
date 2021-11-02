@@ -1,10 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
-</html>
+<!--Aluna: Maria Jaqueline dos Santos Silva-->
+{% extends "template.html" %}
+{% block conteudo %}
+<form action="/atualizar" method="post">
+    <fieldset>
+        <!--inputs pega os names do form e leva para o atualizar da main juntamente com os values de cada input-->
+        <input type="hidden" name="id" value="{{jogo._id}}">
+        <div class="form-group">
+          <label for="nome">Nome</label>
+            <input type="text" id="nome" name="nome" class="form-control" value="{{jogo._nome}}">
+        </div>
+        <div class="form-group">
+           <label for="categoria">Categoria</label>
+           <input type="text" id="categoria" name="categoria" class="form-control" value="{{jogo._categoria}}">
+        </div>
+        <div class="form-group">
+           <label for="console">Console</label>
+           <input type="text" id="console" name="console" class="form-control" value="{{jogo._console}}">
+        </div>
+        <button type="submit" class="btn btn-primary btn-salvar">Salvar</button>
+        <a class="btn btn-danger" href="{{url_for('index')}}">Voltar</a>
+    </fieldset>
+</form>
+{%endblock %}

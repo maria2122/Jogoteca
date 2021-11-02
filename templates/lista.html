@@ -1,12 +1,15 @@
 <!--Aluna: Maria Jaqueline dos Santos Silva-->
 {% extends "template.html" %}
 {% block conteudo %}
+    <a class="btn btn-primary" href="{{url_for('novo')}}">Novo Jogo</a>
     <table class="table table-striped table-responsive table-bordered">
          <thead class="thead-default">
              <tr>
                   <th>Nome</th>
                      <th>Categoria</th>
                      <th>Console</th>
+                     <th></th>
+                     <th></th>
              </tr>
          </thead>
             <tbody>
@@ -15,6 +18,8 @@
                         <td>{{jogo._nome}}</td>
                         <td>{{jogo._categoria}}</td>
                         <td>{{jogo._console}}</td>
+                        <td><a class="btn btn-success" href="{{url_for('editar', id=jogo._id)}}">Editar</a></td>
+                        <td><a class="btn btn-danger" href="{{url_for('deletar', id=jogo._id)}}">Excluir</a></td>
                     </tr>
                 {% endfor %}
              </tbody>

@@ -1,39 +1,24 @@
 #Aluna: Maria Jaqueline dos Santos Silva
 from flask import Flask, render_template, request, redirect, session,flash
-# render_template permite carregarmos arquivo no arquivo atual.
-#instanciando um objeto flask e armazenando na variável app.
+from dao import JogoDao, UsuarioDao
+from flask_mysqldb import MySQL
+from models import Jogo, Usuario
+
 app =  Flask(__name__)
-#chave para o session
+
 app.secret_key='LP2'
-
-class Jogo:
-    def __init__(self, nome, categoria, console):
-        self._nome = nome
-        self._categoria = categoria
-        self._console = console
-
-class Usuario:
-    def __init__(self, id, nome, senha):
-        self._id=id
-        self._nome=nome
-        self._senha=senha
-
-usuario1 = Usuario('mj', 'Maria Jaqueline', '123')
-usuario2 = Usuario('mjs', 'Maria Jaqueline Santos', '1234')
-
-usuarios={usuario1._id:usuario1, usuario2._id:usuario2}
-
-
-jogo1 = Jogo('Tetrix', 'Puzzle', 'Super Nintendo')
-jogo2 = Jogo('Super Mario', 'Aventura', 'Nintendo 64')
-jogo3 = Jogo('Sonic', 'Aventura', 'Mega Drive')
-jogo4 = Jogo('Sonic2', 'Aventura', 'Mega Drive')
-jogo5 = Jogo('Sonic3', 'Aventura', 'Mega Drive')
-
-lista = [jogo1, jogo2, jogo3, jogo4, jogo5]
+app.config['MYSQL_HOST'] = '127.0.0.1'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'admin'
+app.config['MYSQL_DB'] = 'jogoteca'
+app.config['MYSQL_PORT'] = 3307
+db =MySQL(app)
+jogo_dao = JogoDao(db)
+usuario_dao = UsuarioDao(db)
 
 @app.route('/')
 def index():
+    lista = jogo_dao.listar()
     return render_template('lista.html', titulo="Lista de Jogos X", jogos=lista)
 
 @app.route('/novo')
@@ -49,8 +34,7 @@ def criar():
     categoria = request.form['categoria']
     console = request.form['console']
     jogo = Jogo(nome, categoria, console)
-
-    lista.append(jogo)
+    jogo_dao.salvar(jogo)
     return redirect('/')
 
 @app.route('/login')
@@ -62,11 +46,9 @@ def login():
 
 @app.route('/autenticar', methods=['POST', ])
 def autenticar():
-    #verifica se o usuário enviado no form está na lista de usários
-    if request.form['usuario'] in usuarios:
-        usuario=usuarios[request.form['usuario']]
-        print(usuario._senha, usuario._id, usuario._nome)
-
+    usuario = usuario_dao.busca_por_id(request.form['usuario'])
+    '''primeiro if verifica de usuario buscado acima não está vazio ele verifica a senha'''
+    if usuario:
         if usuario._senha == request.form['senha']:
             '''se usuário logado for igual ao do envio no form, exibe-se a
             mensagem de sucesso no login e o mesmo é redirecionado para tela principal,
@@ -94,7 +76,28 @@ def logout():
     session['usuario_logado'] = None
     flash('Nenhum usuário logado!')
     return redirect('/login')
+#no aquivo editar ele pega o parâmetro id da lista e passa para a função editar
+@app.route('/editar/<int:id>')
+def editar(id):
+    if 'usuario_logado' not in session or session['usuario_logado'] == None:
+        return redirect('/login?proxima=editar')
+    jogo = jogo_dao.busca_por_id(id)
+    return render_template('editar.html', titulo="Editando o Jogo", jogo=jogo)
 
+@app.route('/atualizar', methods=['POST', ])
+def atualizar():
+    nome = request.form['nome']
+    categoria = request.form['categoria']
+    console = request.form['console']
+    id = request.form['id']
+    jogo = Jogo(nome, categoria, console, id)
+    jogo_dao.salvar(jogo)
+    return redirect('/')
+
+@app.route('/deletar/<int:id>')
+def deletar(id):
+    jogo_dao.deletar(id)
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(debug=True)
